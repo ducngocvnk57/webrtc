@@ -93,63 +93,58 @@ function handleLogin(success) {
    } else { 
       loginPage.style.display = "none"; 
       callPage.style.display = "block";
-      
-      //********************** 
-      //Starting a peer connection 
-      //********************** 
-      
       //getting local video stream 
-      navigator.webkitGetUserMedia({ video: true, audio: true }, function (myStream) { 
-         stream = myStream; 
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true }). then(handleSuccess).catch(handleError);
+   }
+} 
+function handleSuccess(localStream){
+   window.stream = localStream;
          
-         //displaying local video stream on the page 
-         localVideo.src = window.URL.createObjectURL(stream);
+   //displaying local video stream on the page 
+   localVideo.srcObject = localStream;
          
-         //using Google public stun server 
-         var configuration = { 
-            'iceServers': [
-                {
-                  'url': 'stun:stun.l.google.com:19302'
-                },
-                {
-                  'url': 'turn:192.158.29.39:3478?transport=udp',
-                  'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-                  'username': '28224511:1379330808'
-                },
-                {
-                  'url': 'turn:192.158.29.39:3478?transport=tcp',
-                  'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-                  'username': '28224511:1379330808'
-                }
-            ]
-         }; 
+   //using Google public stun server 
+   var configuration = { 
+      'iceServers': [
+         {
+            'url': 'stun:stun.l.google.com:19302'
+         },
+         {
+            'url': 'turn:192.158.29.39:3478?transport=udp',
+            'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            'username': '28224511:1379330808'
+         },
+         {
+            'url': 'turn:192.158.29.39:3478?transport=tcp',
+            'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            'username': '28224511:1379330808'
+         }
+      ]
+   }; 
          
-         yourConn = new webkitRTCPeerConnection(configuration); 
+   yourConn = new RTCPeerConnection(configuration); 
          
-         // setup stream listening 
-         yourConn.addStream(stream); 
+   // setup stream listening 
+   yourConn.addStream(localStream); 
          
-         //when a remote user adds stream to the peer connection, we display it 
-         yourConn.onaddstream = function (e) { 
-            remoteVideo.src = window.URL.createObjectURL(e.stream); 
-         };
+   //when a remote user adds stream to the peer connection, we display it 
+   yourConn.onaddstream = function (e) { 
+      remoteVideo.src = window.URL.createObjectURL(e.stream); 
+   };
          
          // Setup ice handling 
-         yourConn.onicecandidate = function (event) { 
-            if (event.candidate) { 
-               send({ 
-                  type: "candidate", 
-                  candidate: event.candidate 
-               }); 
-            } 
-         };  
-         
-      }, function (error) { 
-         console.log(error); 
-      }); 
-      
-   } 
-};
+   yourConn.onicecandidate = function (event) { 
+      if (event.candidate) { 
+         send({ 
+            type: "candidate", 
+            candidate: event.candidate 
+         }); 
+      } 
+   };           
+}
+function handleError(err){
+   console.log(err);
+}    
   
 //initiating a call 
 callBtn.addEventListener("click", function () { 
