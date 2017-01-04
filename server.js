@@ -1,12 +1,24 @@
-//require our websocket library 
-var WebSocketServer = require('ws').Server;
+///require our websocket l
+var fs = require('fs');
+var https = require('https');
+var privateKey  = fs.readFileSync('key.pem', 'utf8');
+var certificate = fs.readFileSync('cert.pem', 'utf8');
  
-//creating a websocket server at port 9090 
-var wss = new WebSocketServer({port: 9090}); 
+var credentials = {key: privateKey, cert: certificate};
+var express = require('express');
+var app = express();
+ 
+    //... bunch of other express stuff here ...
+    // 
+    //     //pass in your express app and credentials to create an https server
+var httpsServer = https.createServer(credentials, app) ; httpsServer.listen(8443);
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({
+        server: httpsServer
+});
 
 //all connected to the server users 
 var users = {};
-  
 //when a user connects to our sever 
 wss.on('connection', function(connection) {
   
