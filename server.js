@@ -7,7 +7,8 @@ var certificate = fs.readFileSync('cert.pem', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
 var app = express();
- 
+app.use(express.static('public'));
+app.use('/node_modules', express.static('node_modules'))
     //... bunch of other express stuff here ...
     // 
     //     //pass in your express app and credentials to create an https server
