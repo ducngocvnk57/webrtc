@@ -7,12 +7,13 @@ var certificate = fs.readFileSync('cert.pem', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
 var app = express();
+/* setting static */
 app.use(express.static('public'));
-app.use('/node_modules', express.static('node_modules'))
-    //... bunch of other express stuff here ...
-    // 
-    //     //pass in your express app and credentials to create an https server
-var httpsServer = https.createServer(credentials, app) ; httpsServer.listen(8443);
+app.use('/node_modules', express.static('node_modules'));
+var httpsServer = https.createServer(credentials, app) ; httpsServer.listen(8443,function(){
+   console.log("server listen on port 8443");
+});
+
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({
         server: httpsServer
